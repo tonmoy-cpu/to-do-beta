@@ -20,7 +20,7 @@ const Login = () => {
   const users = useSelector((state: RootState) => state.auth.users || []);
   const dispatch = useDispatch();
   const router = useRouter();
-  const [hasRedirected, setHasRedirected] = useState(false); // Prevent multiple redirects
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     console.log("Login component - Current user state:", user);
@@ -87,25 +87,30 @@ const Login = () => {
     if (user && !hasRedirected) {
       console.log("User logged in, redirecting to home...");
       router.push("/");
-      setHasRedirected(true); // Prevent further redirects
+      setHasRedirected(true);
     }
   }, [user, router, hasRedirected]);
 
   if (user && hasRedirected) {
-    return <div>Redirecting to home...</div>;
+    return <div className="text-[#1b281b] dark:text-white">Redirecting to home...</div>;
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">
+    <div className="flex items-center justify-center min-h-screen bg-[#fbfdfc] dark:bg-[#1e1e1e] text-[#1b281b] dark:text-white">
+      <div className="bg-white dark:bg-[#232323] p-6 rounded-lg shadow-md w-96 border border-[#eef6ef] dark:border-[#2c2c2c]">
+        <h2 className="text-2xl font-bold mb-4 text-center text-[#1b281b] dark:text-white">
           {isRegisterMode ? "Register" : "Login"}
         </h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-        <form onSubmit={isRegisterMode ? handleRegister : handleLogin} className="space-y-4">
+        {error && (
+          <p className="text-red-500 dark:text-[#ff6b6b] text-center mb-4">{error}</p>
+        )}
+        <form
+          onSubmit={isRegisterMode ? handleRegister : handleLogin}
+          className="space-y-4"
+        >
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-[#4f4f4f] dark:text-[#bdbdbd] text-sm font-bold mb-2"
               htmlFor="username"
             >
               Username
@@ -115,13 +120,13 @@ const Login = () => {
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white placeholder-[#4f4f4f] dark:placeholder-[#bdbdbd] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
               placeholder="Enter username"
             />
           </div>
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-[#4f4f4f] dark:text-[#bdbdbd] text-sm font-bold mb-2"
               htmlFor="password"
             >
               Password
@@ -131,7 +136,7 @@ const Login = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white placeholder-[#4f4f4f] dark:placeholder-[#bdbdbd] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
               placeholder="Enter password"
             />
           </div>
@@ -139,7 +144,7 @@ const Login = () => {
             <>
               <div className="mb-4">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-[#4f4f4f] dark:text-[#bdbdbd] text-sm font-bold mb-2"
                   htmlFor="confirmPassword"
                 >
                   Confirm Password
@@ -149,13 +154,13 @@ const Login = () => {
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white placeholder-[#4f4f4f] dark:placeholder-[#bdbdbd] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
                   placeholder="Confirm password"
                 />
               </div>
               <div className="mb-4">
                 <label
-                  className="block text-gray-700 text-sm font-bold mb-2"
+                  className="block text-[#4f4f4f] dark:text-[#bdbdbd] text-sm font-bold mb-2"
                   htmlFor="avatar"
                 >
                   Select Avatar
@@ -164,7 +169,7 @@ const Login = () => {
                   id="avatar"
                   value={avatar}
                   onChange={(e) => setAvatar(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
                 >
                   {avatarOptions.map((option) => (
                     <option key={option.id} value={option.id}>
@@ -180,7 +185,7 @@ const Login = () => {
                       )}`}
                       alt="Preview Avatar"
                     />
-                    <AvatarFallback className="bg-gray-200 text-gray-700">
+                    <AvatarFallback className="bg-[#eef6ef] dark:bg-[#2c2c2c] text-[#3f9142] dark:text-[#98e19b]">
                       {username[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -190,14 +195,14 @@ const Login = () => {
           )}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            className="w-full bg-[#3f9142] text-white p-2 rounded hover:bg-[#357937] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
           >
             {isRegisterMode ? "Register" : "Login"}
           </button>
         </form>
         <button
           onClick={() => setIsRegisterMode(!isRegisterMode)}
-          className="w-full text-blue-500 underline mt-4"
+          className="w-full text-[#3f9142] dark:text-[#98e19b] underline mt-4 hover:text-[#357937] dark:hover:text-[#7cc47f]"
         >
           {isRegisterMode ? "Switch to Login" : "Switch to Register"}
         </button>
