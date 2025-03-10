@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { login, register } from "@/redux/actions";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/ui/avatar";
-import { AvatarImage,AvatarFallback } from "@radix-ui/react-avatar";
+import { AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
 
@@ -20,6 +20,7 @@ const Login = () => {
   const users = useSelector((state: RootState) => state.auth.users || []);
   const dispatch = useDispatch();
   const router = useRouter();
+  const [hasRedirected, setHasRedirected] = useState(false); // Prevent multiple redirects
 
   useEffect(() => {
     console.log("Login component - Current user state:", user);
@@ -68,7 +69,9 @@ const Login = () => {
         setError("Username already exists");
         return;
       }
+      console.log("Dispatching register action with:", { username, password, avatar });
       dispatch(register({ username, password, avatar }));
+      console.log("Register action dispatched successfully");
       setError("");
       setIsRegisterMode(false);
       setUsername("");
@@ -81,13 +84,14 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && !hasRedirected) {
       console.log("User logged in, redirecting to home...");
       router.push("/");
+      setHasRedirected(true); // Prevent further redirects
     }
-  }, [user, router]);
+  }, [user, router, hasRedirected]);
 
-  if (user) {
+  if (user && hasRedirected) {
     return <div>Redirecting to home...</div>;
   }
 

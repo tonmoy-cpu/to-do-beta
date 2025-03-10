@@ -43,21 +43,14 @@ export default function TaskManager() {
 
   const currentUser = users.find((u) => u.username === user);
 
+  // Removed redundant useEffect redirect to /login since AuthWrapper handles it
   useEffect(() => {
-    console.log("User state updated to:", user);
-    if (!mounted || user === null) {
-      console.log("User is null or not mounted, redirecting to login...");
-      router.push("/login");
-    }
-  }, [user, router, mounted]);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     console.log("Theme changed to:", theme);
   }, [theme]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const newReminders: string[] = [];
@@ -222,7 +215,7 @@ export default function TaskManager() {
     console.log("Current user before logout:", user);
     dispatch(login(null));
     setShowProfileDropdown(false);
-    console.log("Logout dispatched, waiting for re-render. Current user:", user);
+    router.push("/login"); // Explicitly redirect to login after logout
   };
 
   const totalTasks = tasks.length;
@@ -277,11 +270,7 @@ export default function TaskManager() {
     return createAvatar(style, { seed, size: 40 });
   };
 
-  if (user === null) {
-    console.log("User is null, should not render TaskManager");
-    return null;
-  }
-
+  // No need to check user === null here since AuthWrapper handles it
   return (
     <div className="flex h-screen bg-[#fbfdfc] dark:bg-[#1e1e1e] text-[#1b281b] dark:text-white">
       {/* Left Sidebar */}

@@ -20,7 +20,7 @@ interface AppState {
 const initialState: AppState = {
   tasks: [],
   weather: {},
-  auth: { user: null, users: [] },
+  auth: { user: null, users: [] }, // Ensure users is always an array
 };
 
 const appReducer = (state = initialState, action: any): AppState => {
@@ -75,11 +75,13 @@ const appReducer = (state = initialState, action: any): AppState => {
         auth: { ...state.auth, user: action.payload },
       };
     case REGISTER:
+      // Ensure state.auth.users is always an array, even if undefined or malformed
+      const currentUsers = Array.isArray(state.auth.users) ? state.auth.users : [];
       return {
         ...state,
         auth: {
           ...state.auth,
-          users: [...state.auth.users, action.payload],
+          users: [...currentUsers, action.payload],
         },
       };
     default:
