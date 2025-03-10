@@ -162,3 +162,34 @@ body {
 .task-high.dark {
   /* Remove previous background and border definitions */
 }
+/* Add these at the end of globals.css */
+
+/* Ensure sidebar overlays content on mobile when open */
+@media (max-width: 767px) {
+  .sidebar-open {
+    overflow-y: auto;
+  }
+  body {
+    overflow: hidden; /* Prevent scrolling of body content when sidebar is open */
+  }
+}
+
+/* Adjust task list items for smaller screens */
+@media (max-width: 767px) {
+  .task-high,
+  .task-medium,
+  .task-low {
+    padding: 0.5rem;
+    font-size: 0.875rem; /* Slightly smaller text on mobile */
+  }
+  .task-options {
+    padding: 0.5rem;
+  }
+}
+
+/* Ensure buttons and inputs are touch-friendly */
+button,
+input,
+select {
+  min-height: 44px; /* Minimum touch target size for mobile */
+}
