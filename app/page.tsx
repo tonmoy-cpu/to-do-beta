@@ -21,7 +21,7 @@ import { useTheme } from "next-themes";
 import TaskInput from "@/components/TaskInput";
 import TaskList from "@/components/TaskList";
 import { RootState, AppDispatch } from "@/redux/store";
-import { updateTask, login } from "@/redux/actions";
+import { updateTask, login, setActiveDropdown } from "@/redux/actions";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
 
@@ -29,6 +29,7 @@ export default function TaskManager() {
   const tasks = useSelector((state: RootState) => state.tasks);
   const user = useSelector((state: RootState) => state.auth.user);
   const users = useSelector((state: RootState) => state.auth.users || []);
+  const activeDropdown = useSelector((state: RootState) => state.activeDropdown); // New selector
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -37,7 +38,6 @@ export default function TaskManager() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("inbox");
   const [showTaskInput, setShowTaskInput] = useState(false);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -129,7 +129,7 @@ export default function TaskManager() {
         }
       }
     });
-  }, [tasks]); // Only depends on tasks to catch new additions
+  }, [tasks]);
 
   // Interval-based check for future reminders
   useEffect(() => {
@@ -249,7 +249,7 @@ export default function TaskManager() {
     console.log("Logout button clicked");
     console.log("Current user before logout:", user);
     dispatch(login(null));
-    setShowProfileDropdown(false);
+    dispatch(setActiveDropdown(null)); // Close dropdown on logout
     router.push("/login");
   };
 
@@ -287,6 +287,11 @@ export default function TaskManager() {
 
   const generateAvatarSvg = (seed: string) => {
     return createAvatar(style, { seed, size: 40 });
+  };
+
+  const toggleProfileDropdown = () => {
+    const newState = activeDropdown === "profile" ? null : "profile";
+    dispatch(setActiveDropdown(newState));
   };
 
   return (
@@ -451,12 +456,12 @@ export default function TaskManager() {
             </button>
             <div className="relative">
               <button
-                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                onClick={toggleProfileDropdown}
                 className="p-2 rounded-md text-white hover:bg-[#357937]"
               >
                 <User size={20} />
               </button>
-              {showProfileDropdown && (
+              {activeDropdown === "profile" && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#242424] border border-gray-200 dark:border-[#2c2c2c] rounded shadow-lg z-10">
                   <button
                     onClick={handleLogout}

@@ -12,6 +12,7 @@ export const FETCH_WEATHER_FAILURE = "FETCH_WEATHER_FAILURE";
 export const UPDATE_TASK = "UPDATE_TASK";
 export const LOGIN = "LOGIN";
 export const REGISTER = "REGISTER";
+export const SET_ACTIVE_DROPDOWN = "SET_ACTIVE_DROPDOWN"; // New action
 
 export const addTask = (task: Task) => ({
   type: ADD_TASK,
@@ -51,6 +52,11 @@ export const login = (username: string | null) => ({
 export const register = (user: { username: string; password: string; avatar: string }) => ({
   type: REGISTER,
   payload: user,
+});
+
+export const setActiveDropdown = (dropdownId: string | null) => ({
+  type: SET_ACTIVE_DROPDOWN,
+  payload: dropdownId, // e.g., "profile", "task-<taskId>", or null to close all
 });
 
 export const fetchWeather = (location: string) => async (dispatch: any) => {

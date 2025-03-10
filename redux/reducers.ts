@@ -9,18 +9,21 @@ import {
   UPDATE_TASK,
   LOGIN,
   REGISTER,
+  SET_ACTIVE_DROPDOWN, // New action
 } from "./actions";
 
 interface AppState {
   tasks: Task[];
   weather: { [location: string]: Weather | { error: string } };
   auth: { user: string | null; users: { username: string; password: string; avatar: string }[] };
+  activeDropdown: string | null; // New field
 }
 
 const initialState: AppState = {
   tasks: [],
   weather: {},
   auth: { user: null, users: [] }, // Ensure users is always an array
+  activeDropdown: null, // Initially, no dropdown is open
 };
 
 const appReducer = (state = initialState, action: any): AppState => {
@@ -83,6 +86,11 @@ const appReducer = (state = initialState, action: any): AppState => {
           ...state.auth,
           users: [...currentUsers, action.payload],
         },
+      };
+    case SET_ACTIVE_DROPDOWN:
+      return {
+        ...state,
+        activeDropdown: action.payload,
       };
     default:
       return state;
