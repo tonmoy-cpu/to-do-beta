@@ -60,7 +60,7 @@ export const setActiveDropdown = (dropdownId: string | null) => ({
 });
 
 export const fetchWeather = (location: string) => async (dispatch: any) => {
-  if (ongoingFetches[location]) {
+  if (location in ongoingFetches) {
     console.log("Fetch already in progress for", location, "skipping...");
     return ongoingFetches[location];
   }

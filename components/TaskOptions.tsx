@@ -22,10 +22,8 @@ const TaskOptions = ({ task }: { task: Task }) => {
   };
 
   const handleAddToCalendar = () => {
-    const calendarUrl = calendarService.addToCalendar(task);
-    if (calendarUrl) {
-      window.open(calendarUrl, "_blank");
-    } else {
+    const result = calendarService.addToCalendar(task);
+    if (!result) {
       alert("Cannot add to calendar: No reminder set for this task.");
     }
     dispatch(setActiveDropdown(null)); // Close dropdown after action
