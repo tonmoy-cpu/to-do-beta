@@ -29,7 +29,7 @@ export default function TaskManager() {
   const tasks = useSelector((state: RootState) => state.tasks);
   const user = useSelector((state: RootState) => state.auth.user);
   const users = useSelector((state: RootState) => state.auth.users || []);
-  const activeDropdown = useSelector((state: RootState) => state.activeDropdown); // New selector
+  const activeDropdown = useSelector((state: RootState) => state.activeDropdown);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -38,6 +38,7 @@ export default function TaskManager() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("inbox");
   const [showTaskInput, setShowTaskInput] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -51,7 +52,6 @@ export default function TaskManager() {
     console.log("Theme changed to:", theme);
   }, [theme]);
 
-  // Function to trigger reminders (shared between immediate and interval checks)
   const triggerReminder = (taskId: string, taskTitle: string, reminderTime: Date) => {
     if (playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
 
@@ -111,7 +111,6 @@ export default function TaskManager() {
     });
   };
 
-  // Immediate check for new tasks with current or past reminders
   useEffect(() => {
     const now = new Date();
     tasks.forEach((task) => {
@@ -122,7 +121,6 @@ export default function TaskManager() {
         !playingReminders.has(task.id)
       ) {
         const reminderTime = new Date(task.reminder);
-        // Trigger if reminder is within 5 seconds of now or in the past
         const timeDiff = now.getTime() - reminderTime.getTime();
         if (timeDiff >= 0 && timeDiff <= 5000) {
           triggerReminder(task.id, task.title, reminderTime);
@@ -131,7 +129,6 @@ export default function TaskManager() {
     });
   }, [tasks]);
 
-  // Interval-based check for future reminders
   useEffect(() => {
     const checkReminders = () => {
       const now = new Date();
@@ -144,7 +141,7 @@ export default function TaskManager() {
         ) {
           const reminderTime = new Date(task.reminder);
           const timeDiff = Math.abs(now.getTime() - reminderTime.getTime());
-          if (timeDiff <= 1000) { // 1-second window for future reminders
+          if (timeDiff <= 1000) {
             triggerReminder(task.id, task.title, reminderTime);
           }
         }
@@ -158,7 +155,6 @@ export default function TaskManager() {
     };
   }, [tasks, pendingReminders, playingReminders]);
 
-  // Cleanup completed tasks' reminders
   useEffect(() => {
     tasks.forEach((task) => {
       if (task.completed && (pendingReminders.has(task.id) || playingReminders.has(task.id))) {
@@ -185,7 +181,6 @@ export default function TaskManager() {
     });
   }, [tasks, pendingReminders, playingReminders]);
 
-  // Cleanup expired reminders
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -249,7 +244,7 @@ export default function TaskManager() {
     console.log("Logout button clicked");
     console.log("Current user before logout:", user);
     dispatch(login(null));
-    dispatch(setActiveDropdown(null)); // Close dropdown on logout
+    dispatch(setActiveDropdown(null));
     router.push("/login");
   };
 
@@ -293,6 +288,22 @@ export default function TaskManager() {
     const newState = activeDropdown === "profile" ? null : "profile";
     dispatch(setActiveDropdown(newState));
   };
+
+  // Filter tasks based on search query and active tab
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = 
+      task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.location && task.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (task.reminder && new Date(task.reminder).toLocaleString().toLowerCase().includes(searchQuery.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    if (activeTab === "home" || activeTab === "inbox") return true;
+    if (activeTab === "today") return task.reminder && new Date(task.reminder).toDateString() === new Date().toDateString();
+    if (activeTab === "upcoming") return task.reminder && new Date(task.reminder) > new Date();
+    if (activeTab === "important") return task.priority === "high";
+    return false;
+  });
 
   return (
     <div className="flex h-screen bg-[#fbfdfc] dark:bg-[#1e1e1e] text-[#1b281b] dark:text-white">
@@ -444,7 +455,9 @@ export default function TaskManager() {
               />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 rounded-md bg-white text-black focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
               />
             </div>
@@ -498,7 +511,13 @@ export default function TaskManager() {
               setPendingReminders={setPendingReminders}
               playingReminders={playingReminders}
               setPlayingReminders={setPlayingReminders}
+              filteredTasks={filteredTasks} // Pass filtered tasks as a prop
             />
+            {searchQuery && filteredTasks.length === 0 && (
+              <p className="text-gray-500 dark:text-gray-400 mt-4">
+                No tasks found matching "{searchQuery}"
+              </p>
+            )}
           </main>
 
           <div className="w-72 bg-gray-100 dark:bg-[#2c2c2c] p-4 border-l border-[#eef6ef] dark:border-[#2c2c2c] h-[calc(100vh-4rem)] overflow-y-auto">

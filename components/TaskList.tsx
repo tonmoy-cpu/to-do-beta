@@ -13,6 +13,7 @@ interface TaskListProps {
   setPendingReminders: React.Dispatch<React.SetStateAction<Set<string>>>;
   playingReminders: Map<string, HTMLAudioElement>;
   setPlayingReminders: React.Dispatch<React.SetStateAction<Map<string, HTMLAudioElement>>>;
+  filteredTasks: Task[]; // New prop for filtered tasks
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -21,15 +22,17 @@ const TaskList: React.FC<TaskListProps> = ({
   setPendingReminders,
   playingReminders,
   setPlayingReminders,
+  filteredTasks, // Accept filtered tasks from parent
 }) => {
-  const tasks = useSelector((state: RootState) => state.tasks);
+  const tasks = useSelector((state: RootState) => state.tasks); // Still needed for weather reference
   const weather = useSelector((state: RootState) => state.weather);
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
     console.log("Tasks loaded from Redux state:", tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, location: t.location })));
     console.log("Current weather state:", weather);
-  }, [tasks, weather]);
+    console.log("Filtered tasks received:", filteredTasks.map(t => ({ id: t.id, title: t.title })));
+  }, [tasks, weather, filteredTasks]);
 
   const handleDeleteTask = (taskId: string) => {
     console.log("Deleting task with ID:", taskId);
@@ -79,7 +82,6 @@ const TaskList: React.FC<TaskListProps> = ({
     dispatch(toggleTaskCompletion(taskId));
   };
 
-  // Function to map weather description to an emoji icon
   const getWeatherIcon = (description: string) => {
     const desc = description.toLowerCase();
     if (desc.includes("clear")) return "☀️";
@@ -88,16 +90,8 @@ const TaskList: React.FC<TaskListProps> = ({
     if (desc.includes("thunder")) return "⛈️";
     if (desc.includes("snow")) return "❄️";
     if (desc.includes("mist") || desc.includes("fog")) return "🌫️";
-    return "🌡️"; // Default icon for unknown weather
+    return "🌡️";
   };
-
-  const filteredTasks = tasks.filter((task: Task) => {
-    if (activeTab === "home" || activeTab === "inbox") return true;
-    if (activeTab === "today") return task.reminder && new Date(task.reminder).toDateString() === new Date().toDateString();
-    if (activeTab === "upcoming") return task.reminder && new Date(task.reminder) > new Date();
-    if (activeTab === "important") return task.priority === "high";
-    return false;
-  });
 
   return (
     <ul>
