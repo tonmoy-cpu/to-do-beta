@@ -14,7 +14,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState("avatar1");
+  const [avatar, setAvatar] = useState("male1"); // Default to first male avatar
   const [error, setError] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
   const users = useSelector((state: RootState) => state.auth.users || []);
@@ -27,13 +27,22 @@ const Login = () => {
     console.log("Login component - Registered users:", users);
   }, [user, users]);
 
+  // Updated avatar options with explicit gender-specific traits
   const avatarOptions = [
-    { id: "avatar1", seed: "John" },
-    { id: "avatar2", seed: "Jane" },
-    { id: "avatar3", seed: "Alex" },
-    { id: "avatar4", seed: "Sarah" },
-    { id: "avatar5", seed: "Mike" },
-    { id: "avatar6", seed: "Emily" },
+    // Male Avatars (short hair, facial hair, no feminine accessories)
+    { id: "avatar 1", seed: "John?hair=short&facialHairProbability=50" }, // Short hair, possible beard
+    { id: "avatar 2", seed: "Alex?hair=short&facialHair=beard" }, // Short hair, beard
+    { id: "avatar 3", seed: "Mike?hair=short&skinColor=light&facialHairProbability=0" }, // Short hair, no facial hair
+    { id: "avatar 4", seed: "James?hair=bald&facialHair=mustache" }, // Bald, mustache
+    { id: "avatar 5", seed: "Chris?hair=short&accessories=glasses&facialHairProbability=0" }, // Short hair, glasses
+    { id: "avatar 6", seed: "David?hair=short&skinColor=dark&facialHair=beard" }, // Short hair, dark skin, beard
+    // Female Avatars (long hair, no facial hair, feminine traits)
+    { id: "avatar 7", seed: "Emma?hair=long&facialHairProbability=0" }, // Long hair
+    { id: "avatar 8", seed: "Sophia?hair=long&accessories=glasses&facialHairProbability=0" }, // Long hair, glasses
+    { id: "avatar 9", seed: "Olivia?hair=bun&skinColor=light&facialHairProbability=0" }, // Bun, light skin
+    { id: "avatar 10", seed: "Isabella?hair=long&accessories=hat&facialHairProbability=0" }, // Long hair, hat
+    { id: "avatar 11", seed: "Ava?hair=long&skinColor=dark&facialHairProbability=0" }, // Long hair, dark skin
+    { id: "avatar 12", seed: "Mia?hair=long&accessoriesProbability=50&facialHairProbability=0" }, // Long hair, possible accessories
   ];
 
   const generateAvatarSvg = (seed: string) => {
@@ -77,7 +86,7 @@ const Login = () => {
       setUsername("");
       setPassword("");
       setConfirmPassword("");
-      setAvatar("avatar1");
+      setAvatar("male1"); // Reset to default
     } else {
       setError("Please fill in all fields");
     }
@@ -181,7 +190,7 @@ const Login = () => {
                   <Avatar className="h-24 w-24">
                     <AvatarImage
                       src={`data:image/svg+xml;utf8,${encodeURIComponent(
-                        generateAvatarSvg(avatarOptions.find((opt) => opt.id === avatar)?.seed || "John")
+                        generateAvatarSvg(avatarOptions.find((opt) => opt.id === avatar)?.seed || "John?hair=short")
                       )}`}
                       alt="Preview Avatar"
                     />
