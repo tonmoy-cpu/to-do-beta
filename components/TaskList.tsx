@@ -13,7 +13,7 @@ interface TaskListProps {
   setPendingReminders: React.Dispatch<React.SetStateAction<Set<string>>>;
   playingReminders: Map<string, HTMLAudioElement>;
   setPlayingReminders: React.Dispatch<React.SetStateAction<Map<string, HTMLAudioElement>>>;
-  filteredTasks: Task[]; // New prop for filtered tasks
+  filteredTasks: Task[];
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -22,9 +22,9 @@ const TaskList: React.FC<TaskListProps> = ({
   setPendingReminders,
   playingReminders,
   setPlayingReminders,
-  filteredTasks, // Accept filtered tasks from parent
+  filteredTasks,
 }) => {
-  const tasks = useSelector((state: RootState) => state.tasks); // Still needed for weather reference
+  const tasks = useSelector((state: RootState) => state.tasks);
   const weather = useSelector((state: RootState) => state.weather);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -100,19 +100,19 @@ const TaskList: React.FC<TaskListProps> = ({
         return (
           <li
             key={task.id}
-            className={`flex justify-between items-center border-b p-2 task-${task.priority} ${
-              task.completed ? "line-through text-gray-500 dark:text-gray-400" : ""
+            className={`flex justify-between items-center task-${task.priority} ${
+              task.completed ? "line-through" : ""
             }`}
           >
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
                 checked={task.completed}
                 onChange={() => handleToggleCompletion(task.id)}
-                className="mr-2"
+                className="h-5 w-5 text-[#3f9142] border-gray-300 rounded focus:ring-[#3f9142]"
               />
               <div>
-                <span className="text-black dark:text-black">
+                <span className="font-medium">
                   {task.title} ({task.category})
                 </span>
                 {task.category === "outdoor" && task.location && (
@@ -134,7 +134,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   </p>
                 )}
                 {task.reminder && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Due: {new Date(task.reminder).toLocaleString()}
                   </p>
                 )}
@@ -144,7 +144,11 @@ const TaskList: React.FC<TaskListProps> = ({
               <TaskOptions task={task} />
               <button
                 onClick={() => handleDeleteTask(task.id)}
-                className="text-red-500"
+                className={`px-3 py-1 text-sm font-medium rounded-md transition-colors duration-150 ease-in-out ${
+                  task.priority === "high"
+                    ? "bg-background text-foreground hover:bg-muted active:bg-muted/80"
+                    : "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80"
+                }`}
               >
                 Delete
               </button>
