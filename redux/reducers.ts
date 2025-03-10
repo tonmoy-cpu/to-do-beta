@@ -20,7 +20,7 @@ interface AppState {
 const initialState: AppState = {
   tasks: [],
   weather: {},
-  auth: { user: null, users: [] }, // Initialize with an empty users array
+  auth: { user: null, users: [] },
 };
 
 const appReducer = (state = initialState, action: any): AppState => {

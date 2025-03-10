@@ -1,17 +1,15 @@
 import { Task } from "@/types/task";
 import { Weather } from "@/types/weather";
 
-// Action Types
 export const ADD_TASK = "ADD_TASK";
 export const DELETE_TASK = "DELETE_TASK";
 export const TOGGLE_TASK_COMPLETION = "TOGGLE_TASK_COMPLETION";
 export const FETCH_WEATHER_SUCCESS = "FETCH_WEATHER_SUCCESS";
 export const FETCH_WEATHER_FAILURE = "FETCH_WEATHER_FAILURE";
-export const UPDATE_TASK = "UPDATE_TASK"; // Use UPDATE_TASK instead of EDIT_TASK
-export const LOGIN = "LOGIN"; // New action type
-export const REGISTER = "REGISTER"; // New action type for registration
+export const UPDATE_TASK = "UPDATE_TASK";
+export const LOGIN = "LOGIN";
+export const REGISTER = "REGISTER";
 
-// Action Creators
 export const addTask = (task: Task) => ({
   type: ADD_TASK,
   payload: task,
@@ -52,7 +50,6 @@ export const register = (user: { username: string; password: string; avatar: str
   payload: user,
 });
 
-// Thunk for fetching weather
 export const fetchWeather = (location: string) => async (dispatch: any) => {
   try {
     const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;

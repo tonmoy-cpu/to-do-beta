@@ -2,18 +2,17 @@
 import React, { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { updateTask } from "@/redux/actions"; // Updated import
+import { updateTask } from "@/redux/actions";
 import { AppDispatch } from "@/redux/store";
 import { Task } from "@/types/task";
 import calendarService from "@/services/calendarService";
-import { cn } from "@/lib/utils"; // Import cn from lib/utils
+import { cn } from "@/lib/utils";
 
 const TaskOptions = ({ task }: { task: Task }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
   const handleEdit = (field: keyof Task, value: string | null) => {
-    // Dispatch updateTask with taskId and the updated field
     if (value !== null) {
       const updatedFields: Partial<Task> = { [field]: value };
       dispatch(updateTask(task.id, updatedFields));
@@ -31,15 +30,14 @@ const TaskOptions = ({ task }: { task: Task }) => {
     setIsOpen(false);
   };
 
-  // Determine base color based on priority and theme
   const getIconColor = () => {
     switch (task.priority) {
       case "high":
-        return "text-red-500 dark:text-red-400"; // Red for high priority, lighter in dark mode
+        return "text-red-500 dark:text-red-400";
       case "medium":
-        return "text-yellow-500 dark:text-yellow-400"; // Yellow for medium priority
+        return "text-yellow-500 dark:text-yellow-400";
       case "low":
-        return "text-gray-500 dark:text-gray-400"; // Gray for low priority
+        return "text-gray-500 dark:text-gray-400";
       default:
         return "text-gray-500 dark:text-gray-400";
     }

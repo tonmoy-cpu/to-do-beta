@@ -19,10 +19,10 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     e.preventDefault();
     if (title.trim()) {
       const newTask: Task = {
-        id: Date.now().toString(), // Unique ID based on timestamp
+        id: Date.now().toString(),
         title: title.trim(),
         reminder: reminder || null,
-        completed: false, // Explicitly set to false
+        completed: false,
         category: category as "indoor" | "outdoor",
         priority: priority as "low" | "medium" | "high",
         location: category === "outdoor" ? location : "",

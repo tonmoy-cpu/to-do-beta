@@ -26,7 +26,6 @@ const TaskList: React.FC<TaskListProps> = ({
   const weather = useSelector((state: RootState) => state.weather);
   const dispatch = useDispatch<AppDispatch>();
 
-  // Remove localStorage sync, rely on redux-persist
   useEffect(() => {
     console.log("Tasks loaded from Redux state:", tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
     tasks.forEach((task: Task) => {

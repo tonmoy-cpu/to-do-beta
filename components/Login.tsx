@@ -1,4 +1,3 @@
-// components/Login.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +20,6 @@ const Login = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  // Debug user state on every render
   useEffect(() => {
     console.log("Login component - Current user state:", user);
     console.log("Login component - Registered users:", users);
@@ -81,7 +79,6 @@ const Login = () => {
     }
   };
 
-  // Redirect to home page after successful login
   useEffect(() => {
     if (user) {
       console.log("User logged in, redirecting to home...");

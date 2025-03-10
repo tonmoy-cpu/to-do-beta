@@ -1,4 +1,3 @@
-// redux/store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import {
   persistStore,
@@ -12,7 +11,6 @@ import {
 } from "redux-persist";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
-// Custom storage to handle SSR in Next.js
 const createNoopStorage = () => {
   return {
     getItem(_key: string) {
@@ -33,7 +31,7 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["tasks", "auth", "weather"], // Persist tasks, auth (including users), and weather
+  whitelist: ["tasks", "auth", "weather"],
 };
 
 import reducer from "./reducers";
@@ -45,8 +43,8 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER], // Ignore all redux-persist actions
-        ignoredPaths: ["tasks.reminder"], // Ignore non-serializable Date objects in reminders
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredPaths: ["tasks.reminder"],
       },
     }),
 });
