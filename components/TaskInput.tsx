@@ -39,30 +39,30 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <div className="mb-6 bg-white dark:bg-[#242424] p-4 rounded-lg shadow-lg">
+    <div className="mb-6 bg-white dark:bg-[#232323] p-4 rounded-lg shadow-lg border border-[#eef6ef] dark:border-[#2c2c2c] text-[#1b281b] dark:text-white">
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter task title"
-          className="w-full p-2 border rounded text-[#1b281b] dark:text-white bg-transparent"
+          className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white placeholder-[#4f4f4f] dark:placeholder-[#bdbdbd] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
         />
         <input
           type="datetime-local"
           value={reminder}
           onChange={(e) => setReminder(e.target.value)}
-          className="w-full p-2 border rounded text-[#1b281b] dark:text-white bg-transparent"
+          className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full p-2 border rounded text-[#1b281b] dark:text-white bg-transparent dark:bg-[#2c2c2c] appearance-none"
+          className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3f9142] appearance-none"
         >
-          <option value="indoor" className="bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white">
+          <option value="indoor" className="bg-white dark:bg-[#242424] text-[#1b281b] dark:text-white">
             Indoor
           </option>
-          <option value="outdoor" className="bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white">
+          <option value="outdoor" className="bg-white dark:bg-[#242424] text-[#1b281b] dark:text-white">
             Outdoor
           </option>
         </select>
@@ -72,23 +72,37 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Location"
-            className="w-full p-2 border rounded text-[#1b281b] dark:text-white bg-transparent"
+            className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white placeholder-[#4f4f4f] dark:placeholder-[#bdbdbd] focus:outline-none focus:ring-1 focus:ring-[#3f9142]"
           />
         )}
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          className="w-full p-2 border rounded text-[#1b281b] dark:text-white bg-transparent"
+          className="w-full p-2 border border-[#eef6ef] dark:border-[#2c2c2c] rounded bg-white dark:bg-[#2c2c2c] text-[#1b281b] dark:text-white focus:outline-none focus:ring-1 focus:ring-[#3f9142] appearance-none"
         >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
+          <option value="low" className="bg-white dark:bg-[#242424] text-[#1b281b] dark:text-white">
+            Low
+          </option>
+          <option value="medium" className="bg-white dark:bg-[#242424] text-[#1b281b] dark:text-white">
+            Medium
+          </option>
+          <option value="high" className="bg-white dark:bg-[#242424] text-[#1b281b] dark:text-white">
+            High
+          </option>
         </select>
         <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="border-[#eef6ef] dark:border-[#2c2c2c] text-[#3f9142] dark:text-[#98e19b] hover:bg-[#eef6ef] dark:hover:bg-[#2f3630]"
+          >
             Cancel
           </Button>
-          <Button type="submit" className="bg-[#3f9142] hover:bg-[#357937] text-white">
+          <Button
+            type="submit"
+            className="bg-[#3f9142] hover:bg-[#357937] text-white"
+          >
             <Plus size={16} className="mr-2" /> Add Task
           </Button>
         </div>
