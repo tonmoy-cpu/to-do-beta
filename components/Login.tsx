@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { login, register } from "@/redux/actions";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/ui/avatar";
+import { AvatarImage,AvatarFallback } from "@radix-ui/react-avatar";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
 
