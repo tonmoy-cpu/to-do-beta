@@ -43,7 +43,6 @@ export default function TaskManager() {
 
   const currentUser = users.find((u) => u.username === user);
 
-  // Removed redundant useEffect redirect to /login since AuthWrapper handles it
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -52,79 +51,114 @@ export default function TaskManager() {
     console.log("Theme changed to:", theme);
   }, [theme]);
 
+  // Function to trigger reminders (shared between immediate and interval checks)
+  const triggerReminder = (taskId: string, taskTitle: string, reminderTime: Date) => {
+    if (playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
+
+    console.log(`Reminder triggered for: ${taskTitle} at ${new Date().toLocaleString()}`);
+    const audio = new Audio("/sounds/alert.mp3");
+    audio.loop = true;
+    setPlayingReminders((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(taskId, audio);
+      console.log("Added audio to playingReminders for task ID:", taskId);
+      return newMap;
+    });
+
+    audio.onerror = () => {
+      console.error(`Failed to load audio for ${taskTitle}: Ensure 'alert.mp3' is in public/sounds/`);
+      setPlayingReminders((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(taskId);
+        return newMap;
+      });
+    };
+
+    audio.onloadeddata = () => {
+      audio
+        .play()
+        .then(() => {
+          console.log(`Playing reminder for ${taskTitle} with ID: ${taskId}`);
+          if (Notification.permission === "granted") {
+            new Notification(`Reminder: ${taskTitle}`, {
+              body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+            });
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                new Notification(`Reminder: ${taskTitle}`, {
+                  body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+                });
+              }
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(`Failed to play audio for ${taskTitle}:`, err);
+          setPlayingReminders((prev) => {
+            const newMap = new Map(prev);
+            newMap.delete(taskId);
+            return newMap;
+          });
+        });
+    };
+
+    setPendingReminders((prev) => {
+      const updatedSet = new Set(prev);
+      updatedSet.add(taskId);
+      console.log("Updated pendingReminders:", Array.from(updatedSet));
+      return updatedSet;
+    });
+  };
+
+  // Immediate check for new tasks with current or past reminders
   useEffect(() => {
-    const newReminders: string[] = [];
+    const now = new Date();
     tasks.forEach((task) => {
       if (
         task.reminder &&
-        new Date(task.reminder) <= new Date() &&
         !task.completed &&
-        !pendingReminders.has(task.id)
+        !pendingReminders.has(task.id) &&
+        !playingReminders.has(task.id)
       ) {
-        console.log(`Reminder triggered for: ${task.title} with ID: ${task.id}`);
-        newReminders.push(task.id);
-
-        if (!playingReminders.has(task.id)) {
-          const audio = new Audio("/sounds/alert.mp3");
-          audio.loop = true;
-          setPlayingReminders((prev) => {
-            const newMap = new Map(prev);
-            newMap.set(task.id, audio);
-            console.log("Added audio to playingReminders for task ID:", task.id);
-            return newMap;
-          });
-          audio.onerror = () => {
-            console.error(`Failed to load audio for ${task.title}: File may be missing or unsupported. Ensure 'alert.mp3' is in public/sounds/`);
-            setPlayingReminders((prev) => {
-              const newMap = new Map(prev);
-              newMap.delete(task.id);
-              console.log("Removed audio from playingReminders due to error for task ID:", task.id);
-              return newMap;
-            });
-          };
-          audio.onloadeddata = () => {
-            audio
-              .play()
-              .then(() => {
-                console.log(`Playing reminder for ${task.title} with ID: ${task.id}`);
-                if (Notification.permission === "granted") {
-                  new Notification(`Reminder: ${task.title}`, {
-                    body: `Due: ${new Date(task.reminder).toLocaleString()}\nSound is playing.`,
-                  });
-                } else if (Notification.permission !== "denied") {
-                  Notification.requestPermission().then((permission) => {
-                    if (permission === "granted") {
-                      new Notification(`Reminder: ${task.title}`, {
-                        body: `Due: ${new Date(task.reminder).toLocaleString()}\nSound is playing.`,
-                      });
-                    }
-                  });
-                }
-              })
-              .catch((err) => {
-                console.error(`Failed to play audio for ${task.title}:`, err);
-                setPlayingReminders((prev) => {
-                  const newMap = new Map(prev);
-                  newMap.delete(task.id);
-                  console.log("Removed audio from playingReminders due to play error for task ID:", task.id);
-                  return newMap;
-                });
-              });
-          };
+        const reminderTime = new Date(task.reminder);
+        // Trigger if reminder is within 5 seconds of now or in the past
+        const timeDiff = now.getTime() - reminderTime.getTime();
+        if (timeDiff >= 0 && timeDiff <= 5000) {
+          triggerReminder(task.id, task.title, reminderTime);
         }
       }
     });
+  }, [tasks]); // Only depends on tasks to catch new additions
 
-    if (newReminders.length > 0) {
-      setPendingReminders((prev) => {
-        const updatedSet = new Set(prev);
-        newReminders.forEach((id) => updatedSet.add(id));
-        console.log("Updated pendingReminders:", Array.from(updatedSet));
-        return updatedSet;
+  // Interval-based check for future reminders
+  useEffect(() => {
+    const checkReminders = () => {
+      const now = new Date();
+      tasks.forEach((task) => {
+        if (
+          task.reminder &&
+          !task.completed &&
+          !pendingReminders.has(task.id) &&
+          !playingReminders.has(task.id)
+        ) {
+          const reminderTime = new Date(task.reminder);
+          const timeDiff = Math.abs(now.getTime() - reminderTime.getTime());
+          if (timeDiff <= 1000) { // 1-second window for future reminders
+            triggerReminder(task.id, task.title, reminderTime);
+          }
+        }
       });
-    }
+    };
+
+    const intervalId = setInterval(checkReminders, 1000);
+    return () => {
+      clearInterval(intervalId);
+      console.log("Reminder interval cleared");
+    };
   }, [tasks, pendingReminders, playingReminders]);
 
+  // Cleanup completed tasks' reminders
   useEffect(() => {
     tasks.forEach((task) => {
       if (task.completed && (pendingReminders.has(task.id) || playingReminders.has(task.id))) {
@@ -151,6 +185,7 @@ export default function TaskManager() {
     });
   }, [tasks, pendingReminders, playingReminders]);
 
+  // Cleanup expired reminders
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -215,7 +250,7 @@ export default function TaskManager() {
     console.log("Current user before logout:", user);
     dispatch(login(null));
     setShowProfileDropdown(false);
-    router.push("/login"); // Explicitly redirect to login after logout
+    router.push("/login");
   };
 
   const totalTasks = tasks.length;
@@ -229,12 +264,8 @@ export default function TaskManager() {
 
   const handleDismiss = (taskId: string) => {
     console.log("Dismiss button clicked for task ID:", taskId);
-    console.log("Current pendingReminders before dismiss:", Array.from(pendingReminders));
-    console.log("Current playingReminders before dismiss:", Array.from(playingReminders.entries()));
-
     const audio = playingReminders.get(taskId);
     if (audio) {
-      console.log("Found audio for task ID:", taskId);
       audio.pause();
       audio.currentTime = 0;
       audio.loop = false;
@@ -244,33 +275,20 @@ export default function TaskManager() {
         console.log("Updated playingReminders after dismiss:", Array.from(newMap.entries()));
         return newMap;
       });
-    } else {
-      console.log("No audio found for task ID:", taskId);
     }
-
     setPendingReminders((prev) => {
       const updatedSet = new Set(prev);
-      const wasDeleted = updatedSet.delete(taskId);
-      console.log("Attempted to remove task ID from pendingReminders:", taskId, "Success:", wasDeleted);
-      if (wasDeleted) {
-        console.log("Successfully updated pendingReminders:", Array.from(updatedSet));
-      } else {
-        console.log("Task ID not found in pendingReminders:", taskId);
-      }
+      updatedSet.delete(taskId);
+      console.log("Updated pendingReminders after dismiss:", Array.from(updatedSet));
       return updatedSet;
     });
-
     dispatch(updateTask(taskId, { reminder: null }));
-    console.log("Dispatched updateTask to remove reminder for task ID:", taskId);
-
-    console.log("Dismiss handler completed for task ID:", taskId);
   };
 
   const generateAvatarSvg = (seed: string) => {
     return createAvatar(style, { seed, size: 40 });
   };
 
-  // No need to check user === null here since AuthWrapper handles it
   return (
     <div className="flex h-screen bg-[#fbfdfc] dark:bg-[#1e1e1e] text-[#1b281b] dark:text-white">
       {/* Left Sidebar */}
