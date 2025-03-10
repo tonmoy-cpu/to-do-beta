@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import { useRouter } from "next/navigation";
 import { login, register } from "@/redux/actions";
 import { RootState } from "@/redux/store";
 import { Avatar } from "@/components/ui/avatar";
@@ -19,7 +19,13 @@ const Login = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const users = useSelector((state: RootState) => state.auth.users || []);
   const dispatch = useDispatch();
-  const router = useRouter(); // For navigation
+  const router = useRouter();
+
+  // Debug user state on every render
+  useEffect(() => {
+    console.log("Login component - Current user state:", user);
+    console.log("Login component - Registered users:", users);
+  }, [user, users]);
 
   const avatarOptions = [
     { id: "avatar1", seed: "John" },
@@ -79,12 +85,11 @@ const Login = () => {
   useEffect(() => {
     if (user) {
       console.log("User logged in, redirecting to home...");
-      router.push("/"); // Redirect to home page (TaskManager)
+      router.push("/");
     }
   }, [user, router]);
 
   if (user) {
-    // Temporary UI while redirecting
     return <div>Redirecting to home...</div>;
   }
 

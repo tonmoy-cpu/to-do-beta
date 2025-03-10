@@ -1,12 +1,14 @@
+// components/AuthWrapper.tsx
 "use client";
 import React from "react";
 import { useSelector } from "react-redux";
 import Login from "@/components/Login";
+import { RootState } from "@/redux/store";
 
 const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state: RootState) => state.auth.user);
 
-  return isAuthenticated ? <>{children}</> : <Login />;
+  return user ? <>{children}</> : <Login />;
 };
 
 export default AuthWrapper;
