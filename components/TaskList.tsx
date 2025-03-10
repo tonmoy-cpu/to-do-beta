@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteTask, fetchWeather, toggleTaskCompletion } from "@/redux/actions";
+import { deleteTask, toggleTaskCompletion } from "@/redux/actions";
 import { RootState, AppDispatch } from "@/redux/store";
 import TaskOptions from "@/components/TaskOptions";
 import { Task } from "@/types/task";
@@ -27,13 +27,9 @@ const TaskList: React.FC<TaskListProps> = ({
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    console.log("Tasks loaded from Redux state:", tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed })));
-    tasks.forEach((task: Task) => {
-      if (task.category === "outdoor" && !weather[task.location]) {
-        dispatch(fetchWeather(task.location));
-      }
-    });
-  }, [dispatch, tasks, weather]);
+    console.log("Tasks loaded from Redux state:", tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, location: t.location })));
+    console.log("Current weather state:", weather);
+  }, [tasks, weather]);
 
   const handleDeleteTask = (taskId: string) => {
     console.log("Deleting task with ID:", taskId);
@@ -83,6 +79,18 @@ const TaskList: React.FC<TaskListProps> = ({
     dispatch(toggleTaskCompletion(taskId));
   };
 
+  // Function to map weather description to an emoji icon
+  const getWeatherIcon = (description: string) => {
+    const desc = description.toLowerCase();
+    if (desc.includes("clear")) return "☀️";
+    if (desc.includes("cloud")) return "☁️";
+    if (desc.includes("rain") || desc.includes("shower")) return "🌧️";
+    if (desc.includes("thunder")) return "⛈️";
+    if (desc.includes("snow")) return "❄️";
+    if (desc.includes("mist") || desc.includes("fog")) return "🌫️";
+    return "🌡️"; // Default icon for unknown weather
+  };
+
   const filteredTasks = tasks.filter((task: Task) => {
     if (activeTab === "home" || activeTab === "inbox") return true;
     if (activeTab === "today") return task.reminder && new Date(task.reminder).toDateString() === new Date().toDateString();
@@ -94,7 +102,7 @@ const TaskList: React.FC<TaskListProps> = ({
   return (
     <ul>
       {filteredTasks.map((task: Task) => {
-        const taskWeather: Weather | undefined = weather[task.location];
+        const taskWeather = task.location ? weather[task.location] : undefined;
         return (
           <li
             key={task.id}
@@ -113,11 +121,22 @@ const TaskList: React.FC<TaskListProps> = ({
                 <span className="text-black dark:text-black">
                   {task.title} ({task.category})
                 </span>
-                {task.category === "outdoor" && taskWeather && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {taskWeather.error
-                      ? "Weather unavailable"
-                      : `Weather: ${taskWeather.main.temp}°C, ${taskWeather.weather[0].description}`}
+                {task.category === "outdoor" && task.location && (
+                  <p className="text-sm mt-1">
+                    {taskWeather ? (
+                      "error" in taskWeather ? (
+                        <span className="weather-highlight">
+                          Weather: {taskWeather.error}
+                        </span>
+                      ) : (
+                        <span className="weather-highlight">
+                          {getWeatherIcon(taskWeather.weather[0].description)}{" "}
+                          {taskWeather.main.temp}°C, {taskWeather.weather[0].description}
+                        </span>
+                      )
+                    ) : (
+                      <span className="weather-highlight">Fetching weather...</span>
+                    )}
                   </p>
                 )}
                 {task.reminder && (

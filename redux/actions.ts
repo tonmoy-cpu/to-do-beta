@@ -1,6 +1,9 @@
 import { Task } from "@/types/task";
 import { Weather } from "@/types/weather";
 
+// In-memory tracker for ongoing fetches
+const ongoingFetches: { [location: string]: Promise<void> } = {};
+
 export const ADD_TASK = "ADD_TASK";
 export const DELETE_TASK = "DELETE_TASK";
 export const TOGGLE_TASK_COMPLETION = "TOGGLE_TASK_COMPLETION";
@@ -51,17 +54,40 @@ export const register = (user: { username: string; password: string; avatar: str
 });
 
 export const fetchWeather = (location: string) => async (dispatch: any) => {
-  try {
-    const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch weather data");
-    }
-    const weatherData: Weather = await response.json();
-    dispatch(fetchWeatherSuccess(location, weatherData));
-  } catch (error) {
-    dispatch(fetchWeatherFailure(location, error.message));
+  if (ongoingFetches[location]) {
+    console.log("Fetch already in progress for", location, "skipping...");
+    return ongoingFetches[location];
   }
+
+  const fetchPromise = (async () => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+      if (!apiKey) {
+        throw new Error("Weather API key is not configured");
+      }
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch weather data: ${response.status} - ${errorText}`);
+      }
+      const data = await response.json();
+      const weather: Weather = {
+        name: data.name,
+        main: { temp: data.main.temp },
+        weather: data.weather.map((w: any) => ({ description: w.description })),
+      };
+      console.log("Weather fetched successfully for", location, ":", weather);
+      dispatch(fetchWeatherSuccess(location, weather));
+    } catch (error: any) {
+      console.error("Weather fetch failed for", location, ":", error.message);
+      dispatch(fetchWeatherFailure(location, error.message || "Weather unavailable"));
+    } finally {
+      delete ongoingFetches[location];
+    }
+  })();
+
+  ongoingFetches[location] = fetchPromise;
+  return fetchPromise;
 };

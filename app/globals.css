@@ -99,13 +99,13 @@ body {
   color: white;
 }
 
-/* Add to existing globals.css */
+/* Task priority styles */
 .task-high { background-color: hsl(0 84.2% 60.2%); color: white; }
 .task-medium { background-color: hsl(43 74% 66%); color: black; }
 .task-low { background-color: hsl(0 0% 96.1%); color: black; }
 .task-options { @apply absolute bg-white dark:bg-[#242424] shadow-lg rounded-md p-2; }
 
-/* app/globals.css */
+/* Task priority colors for light and dark modes */
 .task-low {
   background-color: #e0f7fa; /* Cyan 50 - Light mode */
   border: 1px solid #b0bec5; /* Light gray border */
@@ -144,4 +144,30 @@ body {
 /* Ensure completed tasks have a distinct style */
 .line-through {
   opacity: 0.6;
+}
+
+/* New weather highlight styles */
+.weather-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: #e0f7fa; /* Cyan 50 for light mode */
+  color: #1b281b; /* Dark green text for light mode */
+}
+
+.dark .weather-highlight {
+  background-color: #b2dfdb; /* Teal 100 for dark mode */
+  color: #1b281b; /* Black text for dark mode to match task title */
+}
+
+/* Optional: Add a subtle border or shadow for more emphasis */
+.weather-highlight {
+  border: 1px solid #b0bec5; /* Light gray border */
+}
+
+.dark .weather-highlight {
+  border-color: #78909c; /* Dark gray border */
 }

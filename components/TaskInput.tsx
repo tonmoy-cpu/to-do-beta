@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { addTask } from "@/redux/actions";
+import { addTask, fetchWeather } from "@/redux/actions";
 import { AppDispatch } from "@/redux/store";
 import { Task } from "@/types/task";
 
@@ -29,6 +29,12 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       };
       console.log("Adding new task:", newTask);
       dispatch(addTask(newTask));
+      
+      if (category === "outdoor" && location.trim()) {
+        console.log("Triggering weather fetch for location:", location);
+        dispatch(fetchWeather(location.trim()));
+      }
+
       setTitle("");
       setReminder("");
       setCategory("indoor");
