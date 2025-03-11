@@ -65,7 +65,7 @@ export const fetchWeather = (location: string) => async (dispatch: any) => {
 
   const fetchPromise = (async () => {
     try {
-      const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY; // Updated to match .env.local
+      const apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; // Updated to match .env.local
       if (!apiKey) {
         throw new Error("Weather API key is not configured");
       }
