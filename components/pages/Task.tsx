@@ -25,7 +25,6 @@ import { updateTask, login, setActiveDropdown } from "@/redux/actions";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
 
-// Force dynamic rendering
 export const dynamic = "force-dynamic";
 
 const TaskManager = () => {
@@ -47,7 +46,6 @@ const TaskManager = () => {
 
   const currentUser = users.find((u) => u.username === user);
 
-  // Initial setup
   useEffect(() => {
     setMounted(true);
     if (typeof window !== "undefined" && window.innerWidth >= 768) {
@@ -55,9 +53,8 @@ const TaskManager = () => {
     }
   }, []);
 
-  // Reminder trigger function
   const triggerReminder = useCallback((taskId: string, taskTitle: string, reminderTime: Date) => {
-    if (!mounted || playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
+    if (!mounted || typeof window === "undefined" || playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
 
     try {
       const audio = new Audio("/sounds/alert.mp3");
@@ -106,8 +103,20 @@ const TaskManager = () => {
     }
   }, [mounted, pendingReminders, playingReminders]);
 
-  // Reminder-related useEffects remain the same as in your original code
-  // ... (keeping all the reminder-related useEffects unchanged)
+  // Reminder-related useEffects (unchanged)
+  useEffect(() => {
+    if (!mounted || typeof window === "undefined") return;
+
+    const now = new Date();
+    tasks.forEach((task) => {
+      if (task.reminder && !task.completed) {
+        const reminderTime = new Date(task.reminder);
+        if (reminderTime <= now && !pendingReminders.has(task.id)) {
+          triggerReminder(task.id, task.title, reminderTime);
+        }
+      }
+    });
+  }, [tasks, mounted, pendingReminders, triggerReminder]);
 
   if (!mounted) return null;
 
@@ -234,7 +243,6 @@ const TaskManager = () => {
           "absolute inset-y-0 left-0 md:static flex flex-col border-r border-[#eef6ef] dark:border-[#2c2c2c] bg-[#fbfdfc] dark:bg-[#232323] transition-all duration-300 z-20",
           sidebarOpen ? "w-64" : "w-0 md:w-20"
         )}>
-          {/* Sidebar content remains the same */}
           <div className="flex items-center p-4 border-b border-[#eef6ef] dark:border-[#2c2c2c]">
             {sidebarOpen ? (
               <>

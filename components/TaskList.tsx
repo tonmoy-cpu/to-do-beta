@@ -80,7 +80,7 @@ const TaskList: React.FC<TaskListProps> = ({
   return (
     <ul>
       {filteredTasks.map((task: Task) => {
-        const taskWeather = task.location ? weather[task.location] : undefined;
+        const taskWeather = task.location && weather[task.location] ? weather[task.location] : undefined;
         return (
           <li
             key={task.id}

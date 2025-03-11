@@ -9,6 +9,11 @@ const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
   console.log("AuthWrapper - Current user:", user);
 
+  // During SSR, render children without auth check
+  if (typeof window === "undefined") {
+    return <>{children}</>;
+  }
+
   return user ? <>{children}</> : <Login />;
 };
 
