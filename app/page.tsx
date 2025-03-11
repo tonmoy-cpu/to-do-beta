@@ -1,9 +1,3 @@
-import TaskManager from "@/components/pages/Task";
-
 export default function Home() {
-  return (
-    <>
-    <TaskManager />
-    </>
-  );
+  return <div>Hello World</div>;
 }
