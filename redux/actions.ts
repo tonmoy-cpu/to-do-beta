@@ -1,7 +1,6 @@
 import { Task } from "@/types/task";
 import { Weather } from "@/types/weather";
 
-// In-memory tracker for ongoing fetches
 const ongoingFetches: { [location: string]: Promise<void> } = {};
 
 export const ADD_TASK = "ADD_TASK";
@@ -12,7 +11,7 @@ export const FETCH_WEATHER_FAILURE = "FETCH_WEATHER_FAILURE";
 export const UPDATE_TASK = "UPDATE_TASK";
 export const LOGIN = "LOGIN";
 export const REGISTER = "REGISTER";
-export const SET_ACTIVE_DROPDOWN = "SET_ACTIVE_DROPDOWN"; // New action
+export const SET_ACTIVE_DROPDOWN = "SET_ACTIVE_DROPDOWN";
 
 export const addTask = (task: Task) => ({
   type: ADD_TASK,
@@ -56,12 +55,11 @@ export const register = (user: { username: string; password: string; avatar: str
 
 export const setActiveDropdown = (dropdownId: string | null) => ({
   type: SET_ACTIVE_DROPDOWN,
-  payload: dropdownId, // e.g., "profile", "task-<taskId>", or null to close all
+  payload: dropdownId,
 });
 
 export const fetchWeather = (location: string) => async (dispatch: any) => {
   if (location in ongoingFetches) {
-    console.log("Fetch already in progress for", location, "skipping...");
     return ongoingFetches[location];
   }
 
@@ -84,10 +82,8 @@ export const fetchWeather = (location: string) => async (dispatch: any) => {
         main: { temp: data.main.temp },
         weather: data.weather.map((w: any) => ({ description: w.description })),
       };
-      console.log("Weather fetched successfully for", location, ":", weather);
       dispatch(fetchWeatherSuccess(location, weather));
     } catch (error: any) {
-      console.error("Weather fetch failed for", location, ":", error.message);
       dispatch(fetchWeatherFailure(location, error.message || "Weather unavailable"));
     } finally {
       delete ongoingFetches[location];

@@ -27,11 +27,9 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         priority: priority as "low" | "medium" | "high",
         location: category === "outdoor" ? location : "",
       };
-      console.log("Adding new task:", newTask);
       dispatch(addTask(newTask));
       
       if (category === "outdoor" && location.trim()) {
-        console.log("Triggering weather fetch for location:", location);
         dispatch(fetchWeather(location.trim()));
       }
 

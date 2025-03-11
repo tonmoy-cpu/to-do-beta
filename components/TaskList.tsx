@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteTask, toggleTaskCompletion } from "@/redux/actions";
 import { RootState, AppDispatch } from "@/redux/store";
 import TaskOptions from "@/components/TaskOptions";
 import { Task } from "@/types/task";
-import { Weather } from "@/types/weather";
 
 interface TaskListProps {
   activeTab: string;
@@ -24,59 +23,44 @@ const TaskList: React.FC<TaskListProps> = ({
   setPlayingReminders,
   filteredTasks,
 }) => {
-  const tasks = useSelector((state: RootState) => state.tasks);
   const weather = useSelector((state: RootState) => state.weather);
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    console.log("Tasks loaded from Redux state:", tasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, location: t.location })));
-    console.log("Current weather state:", weather);
-    console.log("Filtered tasks received:", filteredTasks.map(t => ({ id: t.id, title: t.title })));
-  }, [tasks, weather, filteredTasks]);
-
   const handleDeleteTask = (taskId: string) => {
-    console.log("Deleting task with ID:", taskId);
     const audio = playingReminders.get(taskId);
     if (audio) {
-      console.log("Stopping audio for deleted task ID:", taskId);
       audio.pause();
       audio.currentTime = 0;
       audio.loop = false;
       setPlayingReminders((prev) => {
         const newMap = new Map(prev);
         newMap.delete(taskId);
-        console.log("Updated playingReminders after delete:", Array.from(newMap.entries()));
         return newMap;
       });
     }
     setPendingReminders((prev) => {
       const updatedSet = new Set(prev);
       updatedSet.delete(taskId);
-      console.log("Updated pendingReminders after delete:", Array.from(updatedSet));
       return updatedSet;
     });
     dispatch(deleteTask(taskId));
   };
 
   const handleToggleCompletion = (taskId: string) => {
-    console.log("Toggling completion for task ID:", taskId);
     const audio = playingReminders.get(taskId);
     if (audio) {
-      console.log("Stopping audio for completed task ID:", taskId);
       audio.pause();
       audio.currentTime = 0;
       audio.loop = false;
       setPlayingReminders((prev) => {
         const newMap = new Map(prev);
         newMap.delete(taskId);
-        console.log("Updated playingReminders after completion:", Array.from(newMap.entries()));
         return newMap;
       });
     }
     setPendingReminders((prev) => {
       const updatedSet = new Set(prev);
       updatedSet.delete(taskId);
-      console.log("Updated pendingReminders after completion:", Array.from(updatedSet));
       return updatedSet;
     });
     dispatch(toggleTaskCompletion(taskId));

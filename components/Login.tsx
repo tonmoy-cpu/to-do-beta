@@ -14,7 +14,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState("male1"); // Default to first male avatar
+  const [avatar, setAvatar] = useState("male1");
   const [error, setError] = useState("");
   const user = useSelector((state: RootState) => state.auth.user);
   const users = useSelector((state: RootState) => state.auth.users || []);
@@ -22,27 +22,19 @@ const Login = () => {
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
 
-  useEffect(() => {
-    console.log("Login component - Current user state:", user);
-    console.log("Login component - Registered users:", users);
-  }, [user, users]);
-
-  // Updated avatar options with explicit gender-specific traits
   const avatarOptions = [
-    // Male Avatars (short hair, facial hair, no feminine accessories)
-    { id: "avatar 1", seed: "John?hair=short&facialHairProbability=50" }, // Short hair, possible beard
-    { id: "avatar 2", seed: "Alex?hair=short&facialHair=beard" }, // Short hair, beard
-    { id: "avatar 3", seed: "Mike?hair=short&skinColor=light&facialHairProbability=0" }, // Short hair, no facial hair
-    { id: "avatar 4", seed: "James?hair=bald&facialHair=mustache" }, // Bald, mustache
-    { id: "avatar 5", seed: "Chris?hair=short&accessories=glasses&facialHairProbability=0" }, // Short hair, glasses
-    { id: "avatar 6", seed: "David?hair=short&skinColor=dark&facialHair=beard" }, // Short hair, dark skin, beard
-    // Female Avatars (long hair, no facial hair, feminine traits)
-    { id: "avatar 7", seed: "Emma?hair=long&facialHairProbability=0" }, // Long hair
-    { id: "avatar 8", seed: "Sophia?hair=long&accessories=glasses&facialHairProbability=0" }, // Long hair, glasses
-    { id: "avatar 9", seed: "Olivia?hair=bun&skinColor=light&facialHairProbability=0" }, // Bun, light skin
-    { id: "avatar 10", seed: "Isabella?hair=long&accessories=hat&facialHairProbability=0" }, // Long hair, hat
-    { id: "avatar 11", seed: "Ava?hair=long&skinColor=dark&facialHairProbability=0" }, // Long hair, dark skin
-    { id: "avatar 12", seed: "Mia?hair=long&accessoriesProbability=50&facialHairProbability=0" }, // Long hair, possible accessories
+    { id: "avatar 1", seed: "John?hair=short&facialHairProbability=50" },
+    { id: "avatar 2", seed: "Alex?hair=short&facialHair=beard" },
+    { id: "avatar 3", seed: "Mike?hair=short&skinColor=light&facialHairProbability=0" },
+    { id: "avatar 4", seed: "James?hair=bald&facialHair=mustache" },
+    { id: "avatar 5", seed: "Chris?hair=short&accessories=glasses&facialHairProbability=0" },
+    { id: "avatar 6", seed: "David?hair=short&skinColor=dark&facialHair=beard" },
+    { id: "avatar 7", seed: "Emma?hair=long&facialHairProbability=0" },
+    { id: "avatar 8", seed: "Sophia?hair=long&accessories=glasses&facialHairProbability=0" },
+    { id: "avatar 9", seed: "Olivia?hair=bun&skinColor=light&facialHairProbability=0" },
+    { id: "avatar 10", seed: "Isabella?hair=long&accessories=hat&facialHairProbability=0" },
+    { id: "avatar 11", seed: "Ava?hair=long&skinColor=dark&facialHairProbability=0" },
+    { id: "avatar 12", seed: "Mia?hair=long&accessoriesProbability=50&facialHairProbability=0" },
   ];
 
   const generateAvatarSvg = (seed: string) => {
@@ -56,7 +48,6 @@ const Login = () => {
         (u) => u.username === username && u.password === password
       );
       if (foundUser) {
-        console.log("Found user:", foundUser);
         dispatch(login(username));
         setError("");
       } else {
@@ -78,15 +69,13 @@ const Login = () => {
         setError("Username already exists");
         return;
       }
-      console.log("Dispatching register action with:", { username, password, avatar });
       dispatch(register({ username, password, avatar }));
-      console.log("Register action dispatched successfully");
       setError("");
       setIsRegisterMode(false);
       setUsername("");
       setPassword("");
       setConfirmPassword("");
-      setAvatar("male1"); // Reset to default
+      setAvatar("male1");
     } else {
       setError("Please fill in all fields");
     }
@@ -94,7 +83,6 @@ const Login = () => {
 
   useEffect(() => {
     if (user && !hasRedirected) {
-      console.log("User logged in, redirecting to home...");
       router.push("/");
       setHasRedirected(true);
     }
