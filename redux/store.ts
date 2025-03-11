@@ -31,7 +31,8 @@ const storage =
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["tasks", "auth", "weather"],
+  whitelist: ["auth"], // Only persist auth to reduce state size
+  blacklist: ["tasks", "weather"], // Exclude tasks and weather during build
 };
 
 import reducer from "./reducers";

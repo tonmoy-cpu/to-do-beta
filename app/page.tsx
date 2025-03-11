@@ -25,7 +25,7 @@ import { updateTask, login, setActiveDropdown } from "@/redux/actions";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
 
-// Disable static generation
+// Force dynamic rendering to skip static generation
 export const dynamic = "force-dynamic";
 
 export default function TaskManager() {
@@ -49,56 +49,60 @@ export default function TaskManager() {
 
   useEffect(() => {
     setMounted(true);
-    if (window.innerWidth >= 768) {
+    if (typeof window !== "undefined" && window.innerWidth >= 768) {
       setSidebarOpen(true);
     }
   }, []);
 
   const triggerReminder = useCallback((taskId: string, taskTitle: string, reminderTime: Date) => {
-    if (playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
+    if (!mounted || playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
 
-    const audio = new Audio("/sounds/alert.mp3");
-    audio.loop = true;
-    setPlayingReminders((prev) => new Map(prev).set(taskId, audio));
+    try {
+      const audio = new Audio("/sounds/alert.mp3");
+      audio.loop = true;
+      setPlayingReminders((prev) => new Map(prev).set(taskId, audio));
 
-    audio.onerror = () => {
-      console.error(`Failed to load audio for task ${taskId}`);
-      setPlayingReminders((prev) => {
-        const newMap = new Map(prev);
-        newMap.delete(taskId);
-        return newMap;
-      });
-    };
-
-    audio.onloadeddata = () => {
-      audio.play()
-        .then(() => {
-          if (Notification.permission === "granted") {
-            new Notification(`Reminder: ${taskTitle}`, {
-              body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
-            });
-          } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
-              if (permission === "granted") {
-                new Notification(`Reminder: ${taskTitle}`, {
-                  body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
-                });
-              }
-            });
-          }
-        })
-        .catch((error) => {
-          console.error(`Audio play failed for task ${taskId}:`, error);
-          setPlayingReminders((prev) => {
-            const newMap = new Map(prev);
-            newMap.delete(taskId);
-            return newMap;
-          });
+      audio.onerror = () => {
+        console.error(`Failed to load audio for task ${taskId}`);
+        setPlayingReminders((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(taskId);
+          return newMap;
         });
-    };
+      };
 
-    setPendingReminders((prev) => new Set(prev).add(taskId));
-  }, [pendingReminders, playingReminders]);
+      audio.onloadeddata = () => {
+        audio.play()
+          .then(() => {
+            if (Notification.permission === "granted") {
+              new Notification(`Reminder: ${taskTitle}`, {
+                body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+              });
+            } else if (Notification.permission !== "denied") {
+              Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                  new Notification(`Reminder: ${taskTitle}`, {
+                    body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+                  });
+                }
+              });
+            }
+          })
+          .catch((error) => {
+            console.error(`Audio play failed for task ${taskId}:`, error);
+            setPlayingReminders((prev) => {
+              const newMap = new Map(prev);
+              newMap.delete(taskId);
+              return newMap;
+            });
+          });
+      };
+
+      setPendingReminders((prev) => new Set(prev).add(taskId));
+    } catch (error) {
+      console.error(`Error triggering reminder for task ${taskId}:`, error);
+    }
+  }, [mounted, pendingReminders, playingReminders]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -226,7 +230,7 @@ export default function TaskManager() {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (window.innerWidth < 768) {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
       setSidebarOpen(false);
     }
   };
@@ -556,7 +560,7 @@ export default function TaskManager() {
               />
               {searchQuery && filteredTasks.length === 0 && (
                 <p className="text-gray-500 dark:text-gray-400 mt-4">
-                  No tasks found matching "{searchQuery}"
+                  {`No tasks found matching "${searchQuery}"`}
                 </p>
               )}
             </main>
