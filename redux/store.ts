@@ -28,12 +28,12 @@ const createNoopStorage = () => {
 const storage =
   typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage();
 
-const persistConfig = {
-  key: "root",
-  storage,
-  whitelist: ["auth"], // Only persist auth to reduce state size
-  blacklist: ["tasks", "weather"], // Exclude tasks and weather during build
-};
+  const persistConfig = {
+    key: "root",
+    storage,
+    whitelist: ["auth"],
+    blacklist: ["tasks", "weather", "activeDropdown"], // Exclude activeDropdown too
+  };
 
 import reducer from "./reducers";
 
@@ -45,7 +45,7 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredPaths: ["tasks.reminder"],
+        ignoredPaths: ["tasks", "weather", "activeDropdown", "playingReminders", "pendingReminders"],
       },
     }),
 });
