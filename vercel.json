@@ -12,8 +12,15 @@
       "dest": "/"
     }
   ],
-  "env": {
-    "NODE_OPTIONS": "--max-old-space-size=8192",
-    "NODE_VERSION": "18"
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    }
+  },
+  "crons": [],
+  "functions": {
+    "*": {
+      "maxDuration": 60
+    }
   }
 }
