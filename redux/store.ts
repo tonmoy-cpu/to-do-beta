@@ -28,12 +28,12 @@ const createNoopStorage = () => {
 const storage =
   typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage();
 
-  const persistConfig = {
-    key: "root",
-    storage,
-    whitelist: ["auth"],
-    blacklist: ["tasks", "weather", "activeDropdown"], // Exclude activeDropdown too
-  };
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["auth"],
+  blacklist: ["tasks", "weather", "activeDropdown", "playingReminders", "pendingReminders"],
+};
 
 import reducer from "./reducers";
 

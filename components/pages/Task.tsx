@@ -54,13 +54,18 @@ const TaskManager = () => {
   }, []);
 
   const triggerReminder = useCallback((taskId: string, taskTitle: string, reminderTime: Date) => {
-    if (!mounted || typeof window === "undefined" || playingReminders.has(taskId) || pendingReminders.has(taskId)) return;
-
+    if (
+      !mounted ||
+      typeof window === "undefined" ||
+      playingReminders.has(taskId) ||
+      pendingReminders.has(taskId)
+    ) return;
+  
     try {
       const audio = new Audio("/sounds/alert.mp3");
       audio.loop = true;
       setPlayingReminders((prev) => new Map(prev).set(taskId, audio));
-
+  
       audio.onerror = () => {
         console.error(`Failed to load audio for task ${taskId}`);
         setPlayingReminders((prev) => {
@@ -69,7 +74,7 @@ const TaskManager = () => {
           return newMap;
         });
       };
-
+  
       audio.onloadeddata = () => {
         audio.play()
           .then(() => {
@@ -96,7 +101,7 @@ const TaskManager = () => {
             });
           });
       };
-
+  
       setPendingReminders((prev) => new Set(prev).add(taskId));
     } catch (error) {
       console.error(`Error triggering reminder for task ${taskId}:`, error);
