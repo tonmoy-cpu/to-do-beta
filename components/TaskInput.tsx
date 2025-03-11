@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Added useEffect
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
@@ -13,7 +13,12 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [category, setCategory] = useState("indoor");
   const [priority, setPriority] = useState("low");
   const [location, setLocation] = useState("");
+  const [mounted, setMounted] = useState(false); // Added to prevent fetch during SSR/static build
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    setMounted(true); // Set mounted after client-side hydration
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +34,8 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       };
       dispatch(addTask(newTask));
       
-      if (category === "outdoor" && location.trim()) {
+      // Only fetch weather on client-side after mount and not during static build
+      if (mounted && category === "outdoor" && location.trim() && process.env.NODE_ENV !== "production") {
         dispatch(fetchWeather(location.trim()));
       }
 

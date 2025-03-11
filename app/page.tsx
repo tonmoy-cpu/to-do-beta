@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react"; // Added useCallback
+import { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,6 +24,9 @@ import { RootState, AppDispatch } from "@/redux/store";
 import { updateTask, login, setActiveDropdown } from "@/redux/actions";
 import { createAvatar } from "@dicebear/avatars";
 import * as style from "@dicebear/avatars-avataaars-sprites";
+
+// Disable static generation
+export const dynamic = "force-dynamic";
 
 export default function TaskManager() {
   const tasks = useSelector((state: RootState) => state.tasks);
@@ -59,6 +62,7 @@ export default function TaskManager() {
     setPlayingReminders((prev) => new Map(prev).set(taskId, audio));
 
     audio.onerror = () => {
+      console.error(`Failed to load audio for task ${taskId}`);
       setPlayingReminders((prev) => {
         const newMap = new Map(prev);
         newMap.delete(taskId);
@@ -67,33 +71,38 @@ export default function TaskManager() {
     };
 
     audio.onloadeddata = () => {
-      audio.play().then(() => {
-        if (Notification.permission === "granted") {
-          new Notification(`Reminder: ${taskTitle}`, {
-            body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+      audio.play()
+        .then(() => {
+          if (Notification.permission === "granted") {
+            new Notification(`Reminder: ${taskTitle}`, {
+              body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+            });
+          } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                new Notification(`Reminder: ${taskTitle}`, {
+                  body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
+                });
+              }
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(`Audio play failed for task ${taskId}:`, error);
+          setPlayingReminders((prev) => {
+            const newMap = new Map(prev);
+            newMap.delete(taskId);
+            return newMap;
           });
-        } else if (Notification.permission !== "denied") {
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              new Notification(`Reminder: ${taskTitle}`, {
-                body: `Due: ${reminderTime.toLocaleString()}\nSound is playing.`,
-              });
-            }
-          });
-        }
-      }).catch(() => { // Changed 'err' to unused '_'
-        setPlayingReminders((prev) => {
-          const newMap = new Map(prev);
-          newMap.delete(taskId);
-          return newMap;
         });
-      });
     };
 
     setPendingReminders((prev) => new Set(prev).add(taskId));
   }, [pendingReminders, playingReminders]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const now = new Date();
     tasks.forEach((task) => {
       if (
@@ -109,9 +118,11 @@ export default function TaskManager() {
         }
       }
     });
-  }, [tasks, pendingReminders, playingReminders, triggerReminder]);
+  }, [tasks, pendingReminders, playingReminders, triggerReminder, mounted]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const checkReminders = () => {
       const now = new Date();
       tasks.forEach((task) => {
@@ -132,9 +143,11 @@ export default function TaskManager() {
 
     const intervalId = setInterval(checkReminders, 1000);
     return () => clearInterval(intervalId);
-  }, [tasks, pendingReminders, playingReminders, triggerReminder]);
+  }, [tasks, pendingReminders, playingReminders, triggerReminder, mounted]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     tasks.forEach((task) => {
       if (task.completed && (pendingReminders.has(task.id) || playingReminders.has(task.id))) {
         const audio = playingReminders.get(task.id);
@@ -155,9 +168,11 @@ export default function TaskManager() {
         });
       }
     });
-  }, [tasks, pendingReminders, playingReminders]);
+  }, [tasks, pendingReminders, playingReminders, mounted]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const interval = setInterval(() => {
       const now = new Date();
       setPendingReminders((prev) => {
@@ -203,7 +218,7 @@ export default function TaskManager() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [tasks, playingReminders]);
+  }, [tasks, playingReminders, mounted]);
 
   if (!mounted) return null;
 
@@ -257,7 +272,7 @@ export default function TaskManager() {
   };
 
   const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = 
+    const matchesSearch =
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (task.location && task.location.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (task.reminder && new Date(task.reminder).toLocaleString().toLowerCase().includes(searchQuery.toLowerCase()));
@@ -541,7 +556,7 @@ export default function TaskManager() {
               />
               {searchQuery && filteredTasks.length === 0 && (
                 <p className="text-gray-500 dark:text-gray-400 mt-4">
-                  No tasks found matching &quot;{searchQuery}&quot;
+                  No tasks found matching "{searchQuery}"
                 </p>
               )}
             </main>
