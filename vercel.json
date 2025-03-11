@@ -17,10 +17,5 @@
       "NODE_OPTIONS": "--max-old-space-size=4096"
     }
   },
-  "crons": [],
-  "functions": {
-    "*": {
-      "maxDuration": 60
-    }
-  }
+  "crons": []
 }

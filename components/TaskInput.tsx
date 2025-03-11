@@ -34,7 +34,6 @@ const TaskInput: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       };
       dispatch(addTask(newTask));
       
-      // Fetch weather only on client-side, after mount, and not during static builds
       if (
         mounted &&
         typeof window !== "undefined" &&
