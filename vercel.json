@@ -12,9 +12,8 @@
       "dest": "/"
     }
   ],
-  "build": {
-    "env": {
-      "NODE_VERSION": "18"
-    }
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "NODE_VERSION": "18"
   }
 }
